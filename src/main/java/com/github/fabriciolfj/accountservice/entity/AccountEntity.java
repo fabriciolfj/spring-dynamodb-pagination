@@ -1,17 +1,19 @@
-package com.github.fabriciolfj.accountservice.repository;
+package com.github.fabriciolfj.accountservice.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AccountData {
+public class AccountEntity {
 
-    private String accountId;
-    private String dateCreation;
+    private String code;
     private String customer;
+    private LocalDate dateCreated;
 }

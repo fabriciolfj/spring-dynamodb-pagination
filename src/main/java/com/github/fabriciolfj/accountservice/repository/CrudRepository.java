@@ -30,18 +30,19 @@ public abstract class CrudRepository<T, I> {
     }
 
     public List<T> filter(final Map<String, AttributeValue> filter, final String expression, final Map<String, String> expressionName) {
-        Map<String, AttributeValue> exclusiveKey = new HashMap<>();
-        final List<Map<String, AttributeValue>> items = Collections.emptyList();
-
+        Map<String, AttributeValue> exclusiveKey = null;
+        final List<Map<String, AttributeValue>> items = new ArrayList<>();
         do {
-            var result = dynamoDbClient.scan(
-                    ScanRequest.builder()
-                            .filterExpression(expression)
+            var result = dynamoDbClient.query(
+                    QueryRequest
+                            .builder()
+                            .tableName(this.table)
+                            .keyConditionExpression(expression)
                             .expressionAttributeNames(expressionName)
                             .expressionAttributeValues(filter)
+                            .limit(2)
                             .exclusiveStartKey(exclusiveKey)
-                            .limit(100)
-                            .tableName(this.table)
+                            .indexName("CustomerDateIdIndex")
                             .build());
 
             if (result.hasItems()) {

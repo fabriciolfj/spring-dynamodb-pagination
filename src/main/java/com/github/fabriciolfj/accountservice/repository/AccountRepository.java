@@ -11,11 +11,12 @@ import java.util.Map;
 @Component
 public class AccountRepository extends CrudRepository<AccountData, String> {
 
-    private static final String ID_ACCOUNT = "id_account";
+    private static final String ID_ACCOUNT = "ID";
     private static final String DATE_CREATION = "date_creation";
+    private static final String CUSTOMER = "customer";
 
     public AccountRepository() {
-        super("account-table");
+        super("account");
     }
 
     @Override
@@ -41,6 +42,7 @@ public class AccountRepository extends CrudRepository<AccountData, String> {
     private Map<String, AttributeValueUpdate> getItem(final AccountData accountData) {
         final Map<String, AttributeValueUpdate> attributes = new HashMap<>();
         attributes.put(DATE_CREATION, computeUpdateValueIfNotNull(accountData.getDateCreation()));
+        attributes.put(CUSTOMER, computeUpdateValueIfNotNull(accountData.getCustomer()));
 
         return attributes;
     }
@@ -50,6 +52,7 @@ public class AccountRepository extends CrudRepository<AccountData, String> {
                 .builder()
                 .accountId(getAttributeValue(map, ID_ACCOUNT).s())
                 .dateCreation(getAttributeValue(map, DATE_CREATION).s())
+                .customer(getAttributeValue(map, CUSTOMER).s())
                 .build();
     }
 }

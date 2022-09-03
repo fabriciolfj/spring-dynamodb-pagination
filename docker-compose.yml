@@ -1,0 +1,63 @@
+version: '3'
+
+services:
+  localstack:
+    container_name: "${LOCALSTACK_DOCKER_NAME-localstack_main}"
+    image: localstack/localstack
+    network_mode: my-network
+    ports:
+      - "127.0.0.1:53:53"
+      - "127.0.0.1:53:53/udp"
+      - "127.0.0.1:443:443"
+      - "127.0.0.1:4566:4566"
+      - "127.0.0.1:4571:4571"
+      - "127.0.0.1:8055:8080"
+    environment:
+      - SERVICES=${SERVICES- }
+      - DEBUG=${DEBUG- }
+      - DATA_DIR=${DATA_DIR- }
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
+      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY- }
+      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOST_TMP_FOLDER=${TMPDIR}
+    volumes:
+      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  app:
+    networks:
+      - my-network
+    image: fabricio211/product-service:7.1
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/code
+    depends_on:
+      mysql:
+        condition:
+          service_healthy
+
+  mysql:
+    networks:
+      - my-network
+    image: mysql:5.7.21
+    command: --lower_case_table_names=1
+    environment:
+      MYSQL_DATABASE: "product"
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-uuser", "-ppwd", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "3306:3306"
+
+networks:
+  my-network:
+    name: my-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.57.0/24
