@@ -6,6 +6,7 @@ import com.github.fabriciolfj.accountservice.business.SaveAccountProvider;
 import com.github.fabriciolfj.accountservice.entity.AccountEntity;
 import com.github.fabriciolfj.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AccountProvider implements FindAccountProvider, FindAllAccountsProvider, SaveAccountProvider {
@@ -48,6 +50,7 @@ public class AccountProvider implements FindAccountProvider, FindAllAccountsProv
 
     @Override
     public void process(final AccountEntity accountEntity) {
-        repository.save(AccountConverter.toData(accountEntity));
+        var result = repository.save(AccountConverter.toData(accountEntity));
+        log.info("Saved: {}", result);
     }
 }
